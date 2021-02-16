@@ -11,6 +11,8 @@ const posts = (posts = [], action) => {
 			return posts.map((p) => p._id === action.payload._id ? action.payload : p);
 		case ActionTypes.DELETE:
 			return posts.filter((post) => post._id !== action.payload);
+		case ActionTypes.LIKE:
+			return posts.map((post) => post._id === action.payload._id ? action.payload : post);
 		default:
 			return posts;
 	}

@@ -1,42 +1,48 @@
-import React, { useEffect, useState } from 'react';
-import { AppBar, Container, Grow, Grid, Typography } from '@material-ui/core';
-import { useDispatch } from 'react-redux';
+import React, { useState, useEffect } from 'react';
+import { Container, Snackbar } from '@material-ui/core';
+import MuiAlert from '@material-ui/lab/Alert';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
-import Form from './components/Form/Form';
-import Posts from './components/Posts/Posts';
-import { getPosts } from './redux/actions/posts';
+import Navbar from './components/NavBar/NavBar';
+import Home from './components/Home/Home';
+import SignIn from './components/SignIn/SignIn';
 
-import makeStyle from './styles';
+function Alert(props) {
+    return <MuiAlert elevatio={6} variant="filled" { ...props } />;
+}
 
 const App = () => {
 
-	const [currentId, setCurrentId] = useState(null);
+	
+    const [errOpen, setErrOpen] = useState(false);
+    const err = useSelector((state) => state.authReducer.err);
 
-	const classes = makeStyle();
-	const dispatch = useDispatch();
-
-	useEffect(() => {
-		dispatch(getPosts())
-	}, [currentId, dispatch])
+    useEffect(() => {
+		if (err) {
+			setErrOpen(true);
+		}
+    },[err]);
+	
+    function handleErrClose() {
+        setErrOpen(false);
+    }
 
 	return (
-		<Container maxwidth="lg">
-			<AppBar position="static" className={classes.appBar} color="inherit">
-				<Typography variant="h2" align="center" className={classes.heading}>Memories</Typography>
-			</AppBar>
-			<Grow in>
-				<Container>
-					<Grid container className={classes.mainContainer} justify="space-between" alignItems="stretch" spacing={3}>
-						<Grid item xs={12} sm={7}>
-							<Posts setCurrentId={setCurrentId} />
-						</Grid>
-						<Grid item xs={12} sm={4}>
-							<Form currentId={currentId} setCurrentId={setCurrentId} />
-						</Grid>
-					</Grid>
-				</Container>
-			</Grow>
-		</Container>
+		<BrowserRouter>
+			<Container maxwidth="lg">
+				<Navbar />
+				<Switch>
+					<Route path="/" exact component={Home} />
+					<Route path="/signin" exact component={SignIn} />
+				</Switch>
+                <Snackbar anchorOrigin={{vertical: 'bottom', horizontal: 'left'}} open={errOpen} autoHideDuration={3000} onClose={handleErrClose}>
+                    <Alert onClose={handleErrClose} severity="info">
+                        {err}
+                    </Alert>
+                </Snackbar>
+			</Container>
+		</BrowserRouter>
 	);	
 }
 
